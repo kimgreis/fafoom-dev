@@ -27,8 +27,9 @@ from genetic_operations import crossover_single_point, crossover_random_points
 from pyaims import AimsObject
 from pynwchem import NWChemObject
 from pyorca import OrcaObject
+from pygaussian import GaussianObject
 #from pytest import TESTObject
-#from pyff import FFObject
+from pyff import FFObject
 from pyforcefield import FFobject
 from deg_of_freedom import Centroid, Protomeric, NumberOfMolecules
 from measure import *
@@ -631,6 +632,23 @@ class Structure:
         self.energy = orca_object.get_energy()
         self.initial_sdf_string = self.sdf_string
         self.sdf_string = xyz2sdf(orca_object.get_xyz_string_opt(),
+                                  self.mol_info.template_sdf_string)
+
+        for dof in self.dof:
+            setattr(dof, "initial_values", dof.values)
+            dof.update_values(self.sdf_string)
+            
+    def perform_gaussian(self, commandline, memory, fafoompath, execution_string, **kwargs):
+        """Generate the gaussian input, run gaussian, assign new attributes and
+        update attribute values."""
+        gaussian_object = GaussianObject(commandline, memory, fafoompath, **kwargs)
+        gaussian_object.clean()
+        gaussian_object.generate_input(self.sdf_string)
+        gaussian_object.run_gaussian(execution_string)
+        gaussian_object.clean()
+        self.energy = gaussian_object.get_energy()
+        self.initial_sdf_string = self.sdf_string
+        self.sdf_string = xyz2sdf(gaussian_object.get_xyz_string_opt(),
                                   self.mol_info.template_sdf_string)
 
         for dof in self.dof:
