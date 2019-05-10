@@ -355,6 +355,7 @@ def find_closest(numb, list_of_values, periodic=False):
     return closest
 
 
+
 def distance(x, y):
     """"Calculate distance between two points in 3D."""
     return np.sqrt((x[0]-y[0])**2+(x[1]-y[1])**2+(x[2]-y[2])**2)
@@ -595,7 +596,22 @@ def sdf2aims(sdf_string):
     aims_string = ''.join(coord)
     return aims_string
 
+#from old utilities file: is needed for ORCA
+def sdf2xyzORCA(sdf_string):
+    """Convert a sdf string to a xyz string."""
+    atoms = get_ind_from_sdfline(sdf_string.split('\n')[3])[0]
+    coord = [str(atoms)+('\n')]
+    for i in range(4, 4+atoms):
+        x = float(sdf_string.split('\n')[i].split()[0])
+        y = float(sdf_string.split('\n')[i].split()[1])
+        z = float(sdf_string.split('\n')[i].split()[2])
+        name = sdf_string.split('\n')[i].split()[3]
+        coord.append('\n%2s%10.4f%10.4f%10.4f' % (name, x, y, z))
+    coord.append('\n')
+    xyz_string = ''.join(coord)
+    return xyz_string
 
+# is needed for FHI aims
 def sdf2xyz(sdf_string):
     """Convert a sdf_string to a xyz_list."""
     xyz_list = []
@@ -625,6 +641,21 @@ def sdf2xyz_string(sdf_string, comment):
     for i in xyz_list:
         xyz_string += '{:<10}{:>20}{:>20}{:>20}\n'.format(i[0], i[1],i[2],i[3])
     return xyz_string
+
+
+def sdf2gjf(sdf_string):
+    """Convert a sdf string to a gjf string."""
+    atoms = get_ind_from_sdfline(sdf_string.split('\n')[3])[0]
+    coord = []
+    for i in range(4, 4+atoms):
+        x = float(sdf_string.split('\n')[i].split()[0])
+        y = float(sdf_string.split('\n')[i].split()[1])
+        z = float(sdf_string.split('\n')[i].split()[2])
+        name = sdf_string.split('\n')[i].split()[3]
+        coord.append('%2s%10.4f%10.4f%10.4f\n' % (name, x, y, z))
+    coord.append('\n')
+    gjf_string = ''.join(coord)
+    return gjf_string
 
 
 def sdf2coords_and_atomtypes(sdf_string):
