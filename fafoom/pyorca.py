@@ -21,7 +21,7 @@ import glob
 import os
 import subprocess
 
-from utilities import sdf2xyz
+from utilities import sdf2xyzORCA as sdf2xyz
 
 hartree2eV = 27.21138602
 
