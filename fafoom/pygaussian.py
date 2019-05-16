@@ -22,7 +22,7 @@ class GaussianObject():
             chargemult (default="1 1")
             nprocs (default=32)
         Raises:
-            KeyError: if the commandline, memory or fafoompath or gaussian_call is not defined
+            KeyError: if the commandline, memory or fafoompath is not defined
         """
         self.commandline = commandline
         self.name_inputfile = name_inputfile
