@@ -105,8 +105,8 @@ class OrcaObject():
                 not_conv = False
         searchfile.close()
         if not_conv:
-            killfile = open("kill.dat", "w")
-            killfile.close()
+            not_converged = open("not_converged_ORCA.dat", "w")
+            not_converged.close()
         else:
             searchfile = open("result.out", "r")
             for line in searchfile:
