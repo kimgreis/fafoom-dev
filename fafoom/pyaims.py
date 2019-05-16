@@ -115,7 +115,7 @@ class AimsObject():
         searchfile.close()
 
         if not_conv:
-            not_converged_file = open("not_converged.dat", "w")
+            not_converged_file = open("not_converged_AIMS.dat", "w")
             not_converged_file.close()
 
         else:
