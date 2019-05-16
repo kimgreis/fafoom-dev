@@ -87,7 +87,9 @@ if opt == "simple":
                 """ Perform the local optimization """
                 run_util.optimize(str3d, energy_function, params, name)
                 Calculated += 1
-                if str3d not in BLACKLIST:
+                if run_util.check_for_not_converged_AIMS(name) or run_util.check_for_not_converged_ORCA(name):
+                        continue
+                elif str3d not in BLACKLIST:
                     str3d.send_to_blacklist(BLACKLIST)
                     str3d.send_to_new_blacklist(new_blacklist) #  Locally
                     # calculated structures
@@ -225,7 +227,7 @@ if opt == "restart":
                     # Perform the local optimization
                     run_util.optimize(str3d, energy_function, params, name)
                     Calculated += 1
-                    if run_util.check_for_not_converged(name):
+                    if run_util.check_for_not_converged_AIMS(name) or run_util.check_for_not_converged_ORCA(name):
                         continue
                     else:
                         str3d.send_to_blacklist(BLACKLIST)          # Blacklist
@@ -281,7 +283,9 @@ while Calculated < params['max_iter']:
                 run_util.optimize(child, energy_function, params, name)
                 Trials+=1
                 Calculated+=1
-                if child not in BLACKLIST:
+                if run_util.check_for_not_converged_AIMS(name) or run_util.check_for_not_converged_ORCA(name):
+                        continue
+                elif child not in BLACKLIST:
                     print_output('Child after relaxation: Added to Blacklist\n')
                     print_output('{:<15}{:>10.4f}'.format(child, float(child)))
                     run_util.relax_info(child)
