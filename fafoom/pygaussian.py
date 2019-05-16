@@ -2,7 +2,7 @@
 
 from __future__ import division
 import glob
-import os
+import os, sys
 import subprocess
 
 from utilities import sdf2gjf
@@ -22,7 +22,7 @@ class GaussianObject():
             chargemult (default="1 1")
             nprocs (default=32)
         Raises:
-            KeyError: if the commandline, memory or fafoompath is not defined
+            KeyError: if the commandline, memory or fafoompath or gaussian_call is not defined
         """
         self.commandline = commandline
         self.name_inputfile = name_inputfile
@@ -96,8 +96,9 @@ class GaussianObject():
                 not_conv = False
         searchfile.close()
         if not_conv:
-            killfile = open("kill.dat", "w")
-            killfile.close()
+            not_converged = open("not_converged_ORCA.dat", "w")
+            not_converged.close()
+             
         else:
             searchfile = open("gaussian_molecule.log", "r")
             for line in searchfile:
