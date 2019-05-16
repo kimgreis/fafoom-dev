@@ -100,18 +100,30 @@ def inter_info(struct, list_to_add):
         list_to_add.append('{:<9}: {}'.format(dof.name, [float('{:.2f}'.format(x)) for x in dof.values]))
     return list_to_add
 
-def check_for_not_converged(dirname):
+def check_for_not_converged_AIMS(dirname):
     """ Check if the not_converged.dat file is present in the directory or in the
-    subdirectories. Folder will be deleted but calculation will be continued."""
-    check = False
-    if len(glob.glob("*/not_converged.dat")) == 0 and len(glob.glob("not_converged.dat")) == 0:
+    subdirectories for FHI Aims only. Folder will be deleted but calculation will be continued."""
+    check = False    
+    if len(glob.glob("*/not_converged_AIMS.dat")) == 0 and len(glob.glob("not_converged_AIMS.dat")) == 0:
         pass
     else:
-        print("Seems that something didn't converged. Don't worry, no problem.")
+        print_output("Seems that something didn't converge. Don't worry, no problem.")
         shutil.rmtree(os.path.join(os.getcwd(), dirname))
-        os.remove(os.path.join(os.getcwd(), 'not_converged.dat'))
+        os.remove(os.path.join(os.getcwd(), 'not_converged_AIMS.dat'))
         check = True
     return check
+    
+def check_for_not_converged_ORCA(dirname):
+    """ Check if the not_converged.dat file is present in the directory or in the
+    subdirectories for ORCA and Gaussian. Files will be deleted but calculation will be continued."""
+    check = False    
+    if len(glob.glob("*/not_converged_ORCA.dat")) == 0 and len(glob.glob("not_converged_ORCA.dat")) == 0:
+        pass
+    else:               
+        print_output("Seems that something didn't converge. Don't worry, no problem.")
+        os.remove(os.path.join(os.getcwd(), 'not_converged_ORCA.dat'))
+        check = True
+    return check    
 
 def check_for_kill():
     """ Check if the kill.dat file is present in the directory or in the
