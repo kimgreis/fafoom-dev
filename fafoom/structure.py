@@ -627,16 +627,20 @@ class Structure:
         orca_object = OrcaObject(commandline, memory, **kwargs)
         orca_object.clean()
         orca_object.generate_input(self.sdf_string)
-        orca_object.run_orca(execution_string)
+        success = orca_object.run_orca(execution_string)
         orca_object.clean()
-        self.energy = orca_object.get_energy()
-        self.initial_sdf_string = self.sdf_string
-        self.sdf_string = xyz2sdf(orca_object.get_xyz_string_opt(),
-                                  self.mol_info.template_sdf_string)
+        if success:
+            self.energy = orca_object.get_energy()
+            self.initial_sdf_string = self.sdf_string
+            self.sdf_string = xyz2sdf(orca_object.get_xyz_string_opt(),
+                                    self.mol_info.template_sdf_string)
 
-        for dof in self.dof:
-            setattr(dof, "initial_values", dof.values)
-            dof.update_values(self.sdf_string)
+            for dof in self.dof:
+                setattr(dof, "initial_values", dof.values)
+                dof.update_values(self.sdf_string)
+                
+        else:
+            print_output("The ORCA Optimization failed :3")
             
     def perform_gaussian(self, commandline, memory, fafoompath, execution_string, **kwargs):
         """Generate the gaussian input, run gaussian, assign new attributes and
@@ -644,16 +648,19 @@ class Structure:
         gaussian_object = GaussianObject(commandline, memory, fafoompath, **kwargs)
         gaussian_object.clean()
         gaussian_object.generate_input(self.sdf_string)
-        gaussian_object.run_gaussian(execution_string)
+        success = gaussian_object.run_gaussian(execution_string)
         gaussian_object.clean()
-        self.energy = gaussian_object.get_energy()
-        self.initial_sdf_string = self.sdf_string
-        self.sdf_string = xyz2sdf(gaussian_object.get_xyz_string_opt(),
-                                  self.mol_info.template_sdf_string)
+        if success:
+            self.energy = gaussian_object.get_energy()
+            self.initial_sdf_string = self.sdf_string
+            self.sdf_string = xyz2sdf(gaussian_object.get_xyz_string_opt(),
+                                    self.mol_info.template_sdf_string)
 
-        for dof in self.dof:
-            setattr(dof, "initial_values", dof.values)
-            dof.update_values(self.sdf_string)
+            for dof in self.dof:
+                setattr(dof, "initial_values", dof.values)
+                dof.update_values(self.sdf_string)
+        else:
+            print_output("The Gaussian Optimization failed")
 
     def perform_ff(self, force_field, **kwargs):
         """Generate the force-field input, run force=field calculation, assign
