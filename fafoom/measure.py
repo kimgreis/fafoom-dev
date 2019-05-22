@@ -20,9 +20,9 @@ from operator import itemgetter
 import numpy as np
 
 import os, sys, re
-# from rdkit import Chem
-# from rdkit.Chem import AllChem
-# from rdkit.Chem import rdMolTransforms
+from rdkit import Chem
+from rdkit.Chem import AllChem
+from rdkit.Chem import rdMolTransforms
 from numpy.linalg import inv
 from utilities import *
 
@@ -449,7 +449,7 @@ def pyranosering_set(sdf_string, position, new_dih, new_ang):
     from scipy.linalg import expm3
     atoms_ring = {}
     for n, name in zip(range(len(position)),
-                       ['C0', 'C1', 'C2', 'C3', 'C4', 'O', 'O0']):
+                       ['C0', 'C1', 'C2', 'C3', 'C4', 'O', 'X']):
         atoms_ring[name] = position[n]
 
     def initialize(sdf_string):   # Need to be tested, RDKIT is not presented anymore
@@ -595,9 +595,13 @@ def pyranosering_set(sdf_string, position, new_dih, new_ang):
         if 'O0a' in atoms_ring.keys():
             if list_of_atoms[-1] == atoms_ring['O0a']:
                 new_dih += 120.0
-        else:
+        elif 'O0b' in atoms_ring.keys():
             if list_of_atoms[-1] == atoms_ring['O0b']:
                 new_dih -= 120.0
+        else: 
+            if list_of_atoms[-1] == atoms_ring['H']:
+                new_dih += 180.0
+                
         #   Determine which atoms should be dragged along with the bond:
         carried_atoms = determine_carried_atoms(list_of_atoms[1],
                                                 list_of_atoms[2], conn_mat)
@@ -624,8 +628,10 @@ def pyranosering_set(sdf_string, position, new_dih, new_ang):
         """
         n_at = len(coords_and_masses_from_sdf(sdf_string))
         n_bonds = len(conn_list_from_sdf(sdf_string))
+     #   m_string = Chem.MolToMolBlock(molecule)
+        
         #   Split the string to xyz, connectivity matrix and atom list
-        m_coords = m_string.split('\n')[4:4+n_at] # Will not work 'm_string' is not defined
+        m_coords = sdf_string.split('\n')[4:4+n_at] # Will not work 'm_string' is not defined
         xyz = np.zeros((n_at, 3))
         atom_list = []
         n = 0
@@ -634,7 +640,7 @@ def pyranosering_set(sdf_string, position, new_dih, new_ang):
             atom_list.append(line.split()[3])
             n += 1
         #   Molecule Connectivity Matrix
-        m_conn = m_string.split('\n')[4+n_at:4+n_at+n_bonds]
+        m_conn = sdf_string.split('\n')[4+n_at:4+n_at+n_bonds]   # Replace m_string with sdf_string or vice versa
         conn_mat = np.zeros((n_at, n_at))
         for line in m_conn:
             at1 = int(line.split()[0])
@@ -655,17 +661,23 @@ def pyranosering_set(sdf_string, position, new_dih, new_ang):
             atoms_list.append(atoms_ring['C'+str(x)])
         atoms_list.append(atoms_ring['O'])
         atoms_list.append(atoms_ring['C0'])
-        atoms_list.append(atoms_ring['O0'])
-        #   Determine the anomer - alpha/beta, based on improper
-        #   dihedral angle C1-C0-O-O0
-        imdih = []
-        for at in ['C1', 'C0', 'O', 'O0']:
-            imdih.append(atoms_ring[at])
-        test_anomer = measure_dihedral_tor(imdih, xyz)[0]
-        if test_anomer > 0.0:
-            atoms_ring['O0b'] = atoms_ring.pop('O0')
-        else:
-            atoms_ring['O0a'] = atoms_ring.pop('O0')
+        atoms_list.append(atoms_ring['X'])
+        if atom_list[atoms_ring['X']] == 'O0':
+            #   Determine the anomer - alpha/beta, based on improper
+            #   dihedral angle C1-C0-O-O0
+            imdih = []
+            for at in ['C1', 'C0', 'O', 'X']:
+                imdih.append(atoms_ring[at])
+            test_anomer = measure_dihedral_tor(imdih, xyz)[0]
+            if test_anomer > 0.0:
+                atoms_ring['O0b'] = atoms_ring.pop('X')
+            else:
+                atoms_ring['O0a'] = atoms_ring.pop('X')
+        elif atom_list[atoms_ring['X']] == 'H':
+            atoms_ring['H'] = atoms_ring.pop('X')
+             
+        else: print "something's wrong"
+            
         #   Adjust the 'internal' angles in the ring:
         for n in range(len(new_ang)):
             xyz = set_angle(atoms_list[n:n+3], new_ang[n], atoms_ring, xyz,

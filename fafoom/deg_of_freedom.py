@@ -25,11 +25,11 @@ from measure import *
 from utilities import *
 from genetic_operations import mutation
 
-# from rdkit import Chem
-# from rdkit.Chem import AllChem
+from rdkit import Chem
+from rdkit.Chem import AllChem
 
 from operator import itemgetter
-# from rdkit.Chem import rdMolTransforms
+from rdkit.Chem import rdMolTransforms
 
 import numpy as np
 

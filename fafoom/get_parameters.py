@@ -16,8 +16,8 @@
 #   along with fafoom.  If not, see <http://www.gnu.org/licenses/>.
 ''' Communicate between the structure and the degrees of freedom.'''
 from __future__ import division
-# from rdkit import Chem
-# from rdkit.Chem import AllChem
+from rdkit import Chem
+from rdkit.Chem import AllChem
 from deg_of_freedom import Torsion, CisTrans, PyranoseRing, Centroid, Orientation, Protomeric
 from utilities import *
 from measure import *
